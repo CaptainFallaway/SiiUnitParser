@@ -1,37 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"os"
+
+	"github.com/CaptainFallaway/SiiUnitParser/pkg/siiunit"
 )
 
 func main() {
-	descriptors := GetDescriptors()
+	file, err := os.Open("data/game-decoded.sii")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
 
-	vehicles := FilterByDtype(descriptors, "vehicle")
-	volvoDescriptors := FilterByBodyContains(descriptors, "volvo.fh16_2012")
-	volvoAccessories := FilterByDtype(volvoDescriptors, "vehicle_accessory", "vehicle_addon_accessory")
+	units, err := siiunit.ParseAllUnits(file)
+	if err != nil {
+		panic(err)
+	}
 
-	// for _, accessory := range volvoAccessories {
-	// 	PrintDescriptor(accessory)
-	// }
+	fmt.Println("Parsed", len(units), "units")
 
-	for _, vehicle := range vehicles {
-		accessories := GetEachAccessoryOfVehicle(vehicle, volvoAccessories)
-
-		if len(accessories) == 0 {
-			continue
-		}
-
-		file, err := os.OpenFile(vehicle.uid, os.O_WRONLY|os.O_CREATE, 0644)
-		if err != nil {
-			panic(err)
-		}
-		defer file.Close()
-
-		for _, accessory := range accessories {
-			text := BuildDescriptorString(accessory)
-			file.WriteString(text)
-			file.WriteString("\n")
-		}
+	for _, unit := range units {
+		fmt.Println(unit)
 	}
 }

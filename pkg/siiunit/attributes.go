@@ -25,8 +25,8 @@ func (as *Attributes) addAttribute(key, val string) error {
 	return nil
 }
 
-func (as *Attributes) GetAttribute(key string) (Attribute, bool) {
-	attr, ok := as.attrs[key]
+func (as *Attributes) Get(attrKey string) (Attribute, bool) {
+	attr, ok := as.attrs[attrKey]
 	return *attr, ok
 }
 

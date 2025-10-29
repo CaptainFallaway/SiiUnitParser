@@ -14,7 +14,7 @@ func main() {
 	}
 	defer file.Close()
 
-	units, err := siiunit.ParseAllUnits(file)
+	units, err := siiunit.ParseAllUnitsConcurrent(file)
 	if err != nil {
 		panic(err)
 	}

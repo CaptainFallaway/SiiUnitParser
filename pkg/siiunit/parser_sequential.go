@@ -3,37 +3,8 @@ package siiunit
 import (
 	"bufio"
 	"io"
-	"strconv"
 	"strings"
 )
-
-func makeArray(line, prevLine string, currAttrs *Attributes) error {
-	prevLineSplit := strings.Split(prevLine, ": ")
-	arrKey := prevLineSplit[0]
-
-	attr := currAttrs.attrs[arrKey]
-
-	// Check if the attribute is already an array or not
-	if attr.Atype != AttributeTypeArray {
-		arrSize, err := strconv.Atoi(prevLineSplit[1])
-		if err != nil {
-			return err
-		}
-
-		attr.makeArray(arrSize)
-	}
-
-	// Append the value to the array
-	lineSplit := strings.Split(line, ": ")
-	attr.appendToArray(lineSplit[1])
-
-	return nil
-}
-
-func containsArrSyntax(line string) bool {
-	splitLine := strings.Split(line, ": ")
-	return strings.Contains(splitLine[0], "[")
-}
 
 // ReadAllDescriptors does panic (I'm to lazy to handle errors atm)
 func ParseAllUnits(content io.Reader) ([]Unit, error) {
@@ -79,7 +50,7 @@ func ParseAllUnits(content io.Reader) ([]Unit, error) {
 				firstArrLine = prevLine
 			}
 
-			err := makeArray(line, firstArrLine, currAttrs)
+			err := buildAttributeArray(line, firstArrLine, currAttrs)
 			if err != nil {
 				return nil, err
 			}
@@ -100,9 +71,5 @@ func ParseAllUnits(content io.Reader) ([]Unit, error) {
 		prevLine = line
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return units, nil
+	return units, scanner.Err()
 }
